@@ -47,9 +47,9 @@
             z-index: 100;
         }
 
-        /* Animație Pahare (Alba-Neagra) */
+        /* Animație Pahare (Alba-Neagra) - Fluidă */
         .cup-move {
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.3s ease-in-out;
         }
 
         /* Stil pentru muștele care o distrag */
@@ -119,11 +119,6 @@
             <h2 class="text-xl md:text-2xl font-black text-purple-600 uppercase">Ce pică aia primesc!</h2>
             
             <div id="mg-menu" class="w-full flex flex-col gap-3">
-                <label class="text-gray-500 font-bold text-sm">Nivel dificultate:</label>
-                <select id="diff-select" class="border-2 border-purple-300 rounded-xl p-2 font-bold text-gray-700 text-center outline-none">
-                    <option value="usor">Ușor</option>
-                    <option value="mediu" selected>Mediu</option>
-                </select>
                 <button id="start-shuffle-btn" class="bg-purple-500 text-white font-bold py-3 px-6 rounded-full shadow mt-2 hover:bg-purple-600 active:scale-95 transition-transform">
                     Amestecă Paharele!
                 </button>
@@ -131,10 +126,10 @@
 
             <!-- Paharele efective -->
             <div id="cups-area" class="relative w-full h-32 hidden">
-                <div id="cup1" class="cup bg-gradient-to-br from-pink-400 to-purple-500 w-20 h-24 rounded-t-lg rounded-b-3xl absolute flex justify-center items-center text-white text-4xl font-black shadow-xl cursor-pointer cup-move" style="left: 20%;">
+                <div id="cup1" class="cup bg-pink-500 w-20 h-24 rounded-t-lg rounded-b-3xl absolute flex justify-center items-center text-white text-4xl font-black shadow-xl cursor-pointer cup-move" style="left: 20%;">
                     ?
                 </div>
-                <div id="cup2" class="cup bg-gradient-to-br from-purple-400 to-pink-500 w-20 h-24 rounded-t-lg rounded-b-3xl absolute flex justify-center items-center text-white text-4xl font-black shadow-xl cursor-pointer cup-move" style="left: 60%;">
+                <div id="cup2" class="cup bg-purple-500 w-20 h-24 rounded-t-lg rounded-b-3xl absolute flex justify-center items-center text-white text-4xl font-black shadow-xl cursor-pointer cup-move" style="left: 60%;">
                     ?
                 </div>
             </div>
@@ -285,30 +280,45 @@
                 cup1.innerText = '?';
                 cup2.innerText = '?';
 
-                // Preluăm dificultatea
-                const diffSelect = document.getElementById('diff-select');
-                const isUsor = diffSelect.value === 'usor';
-                const maxShuffles = isUsor ? 10 : 20;
-                const shuffleSpeed = isUsor ? 400 : 200; // Viteza schimbării
-                const fliesNum = isUsor ? 5 : 12; // Câte muște apar
+                const maxShuffles = 15;
+                const shuffleSpeed = 350; // Viteza clară de schimbare
+                const fliesNum = 7; // Mai puține muște
 
                 spawnDistractingFlies(fliesNum);
                 
-                // Amestecăm paharele
+                // Amestecăm paharele clar stânga-dreapta
                 let shuffles = 0;
                 let shuffleInterval = setInterval(() => {
                     shuffles++;
-                    // Schimbăm pozițiile paharelor (random între 10% și 70% stânga/dreapta)
-                    let pos1 = Math.random() * 60 + 10; 
-                    let pos2 = Math.random() * 60 + 10;
-                    cup1.style.left = `${pos1}%`;
-                    cup2.style.left = `${pos2}%`;
+                    
+                    // Schimbăm pozițiile paharelor clar între 20% și 60%
+                    let positions = ['20%', '60%'];
+                    if (Math.random() > 0.5) {
+                        positions.reverse();
+                    }
+                    
+                    cup1.style.left = positions[0];
+                    cup2.style.left = positions[1];
+
+                    // Pentru a se vedea clar care trece prin fața celuilalt
+                    if (positions[0] === '60%') {
+                        cup1.style.zIndex = 10;
+                        cup2.style.zIndex = 5;
+                    } else {
+                        cup1.style.zIndex = 5;
+                        cup2.style.zIndex = 10;
+                    }
 
                     if (shuffles >= maxShuffles) {
                         clearInterval(shuffleInterval);
+                        
+                        // GARANTĂM că la final se întorc pe poziții strict despărțite
+                        cup1.style.left = '20%';
+                        cup2.style.left = '60%';
+                        
                         setTimeout(() => {
                             titleText.innerText = "Alege un pahar repede!";
-                        }, 500);
+                        }, 400);
                     }
                 }, shuffleSpeed);
             }, 1500);
@@ -322,12 +332,12 @@
         function spawnDistractingFlies(count) {
             const container = document.getElementById('flies-container');
             for(let i=0; i<count; i++) {
-                let fly = document.createElement('img'); // Acum e o poză (img), nu un punct desenat
+                let fly = document.createElement('img'); // Acum e o poză (img)
                 fly.src = 'docs/musca.png';
                 fly.className = 'distracting-fly';
                 
-                // Mărime pentru poză
-                let size = Math.random() * 20 + 30; 
+                // Mărime mai mare pentru poză (între 50px și 80px)
+                let size = Math.random() * 30 + 50; 
                 fly.style.width = size + 'px';
                 fly.style.height = 'auto';
                 
