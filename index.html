@@ -76,8 +76,8 @@
     <!-- Container pentru Muște -->
     <div id="flies-container"></div>
 
-    <!-- Cardul Principal (Z-50 ca să fie deasupra artificiilor) -->
-    <div id="card" class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl z-50 relative max-w-lg w-full mx-4 text-center floating-card border-4 border-pink-200 transition-all duration-500">
+    <!-- Cardul Principal (Am adăugat min-h-[350px] ca să prevenim bug-ul de colapsare pe iOS) -->
+    <div id="card" class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl z-50 relative max-w-lg w-full mx-4 text-center floating-card border-4 border-pink-200 transition-all duration-500 min-h-[350px]">
         
         <!-- Imaginea voastră rotundă din folderul docs -->
         <img id="main-image" src="docs/us1.jpg" alt="Noi doi" class="w-32 h-32 md:w-40 md:h-40 object-cover mx-auto rounded-full mb-6 border-4 border-pink-100 shadow-md">
@@ -114,8 +114,8 @@
             </button>
         </div>
 
-        <!-- Mini Jocul Alba-Neagra -->
-        <div id="minigame-container" class="hidden flex-col items-center justify-center gap-6 mt-4 w-full">
+        <!-- Mini Jocul Alba-Neagra (Fix iOS: folosim style="display: none;" direct) -->
+        <div id="minigame-container" style="display: none;" class="flex-col items-center justify-center gap-6 mt-4 w-full">
             <h2 class="text-xl md:text-2xl font-black text-purple-600 uppercase">Ce pică aia primesc!</h2>
             
             <div id="mg-menu" class="w-full flex flex-col gap-3">
@@ -124,8 +124,8 @@
                 </button>
             </div>
 
-            <!-- Paharele efective - ACUM AMBELE SUNT ROZ -->
-            <div id="cups-area" class="relative w-full h-32 hidden">
+            <!-- Paharele efective -->
+            <div id="cups-area" style="display: none;" class="relative w-full h-32">
                 <div id="cup1" class="cup bg-pink-500 w-20 h-24 rounded-t-lg rounded-b-3xl absolute flex justify-center items-center text-white text-4xl font-black shadow-xl cursor-pointer cup-move" style="left: 20%;">
                     ?
                 </div>
@@ -188,18 +188,19 @@
 
             if (noClickCount <= 9) {
                 if(noClickCount !== 7) { 
-                    // Schimbăm textul principal, lăsăm butonul simplu "NU"
                     msgContainer.innerHTML = `<p class="text-xl md:text-2xl text-pink-600 font-bold transition-all duration-300 text-center">${noMessages[noClickCount - 1]}</p>`;
                 }
                 jumpButtonRandomly();
             } else if (noClickCount >= 10) {
-                // Pasul 10: Trecem la jocul cu pahare
+                // Pasul 10: Trecem la jocul cu pahare (FORȚĂM AFIȘAREA PENTRU iOS)
                 containerDiv.style.display = 'none';
                 btnNu.style.display = 'none'; // Ne asigurăm că dispare de pe ecran
                 msgContainer.style.display = 'none';
+                
                 titleText.innerText = "Să vedem cât de norocoasă ești!";
-                minigameContainer.classList.remove('hidden');
-                minigameContainer.classList.add('flex');
+                
+                // Fix major pentru telefoane (iOS Safari)
+                minigameContainer.style.display = 'flex';
             }
         }
 
@@ -270,7 +271,9 @@
 
         startShuffleBtn.addEventListener('click', () => {
             mgMenu.style.display = 'none';
-            cupsArea.classList.remove('hidden');
+            
+            // Fix iOS pentru afișarea paharelor
+            cupsArea.style.display = 'block';
             
             // Dezactivăm posibilitatea de a apăsa pe pahare în timp ce se amestecă
             cupsArea.style.pointerEvents = 'none';
