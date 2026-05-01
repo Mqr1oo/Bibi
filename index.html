@@ -145,6 +145,7 @@
         const titleText = document.getElementById('title');
         const msgContainer = document.getElementById('message-container');
         const minigameContainer = document.getElementById('minigame-container');
+        const cupsArea = document.getElementById('cups-area');
         
         let noClickCount = 0;
         let isHidingButton = false;
@@ -244,8 +245,8 @@
             containerDiv.style.display = 'none';
             btnNu.style.display = 'none'; // Ascundem NU definitiv
             
-            // AM PUS O POZĂ CUTE (GIF CU URSULEȚI) CA SĂ FIE SIGUR CĂ SE ÎNCARCĂ ȘI NU E GOL
-            document.getElementById('main-image').src = "https://media.tenor.com/Q-o_wZItf_gAAAAi/milk-and-mocha.gif";
+            // REVENIM LA POZA VOASTRĂ LA FINAL
+            document.getElementById('main-image').src = "docs/us1.jpg";
             titleText.innerText = "Yaaay! Am știut!";
             titleText.classList.replace('text-pink-500', 'text-red-500');
             
@@ -263,7 +264,6 @@
 
         // -- LOGICĂ MINIGAME --
         const startShuffleBtn = document.getElementById('start-shuffle-btn');
-        const cupsArea = document.getElementById('cups-area');
         const mgMenu = document.getElementById('mg-menu');
         const cup1 = document.getElementById('cup1');
         const cup2 = document.getElementById('cup2');
@@ -271,6 +271,9 @@
         startShuffleBtn.addEventListener('click', () => {
             mgMenu.style.display = 'none';
             cupsArea.classList.remove('hidden');
+            
+            // Dezactivăm posibilitatea de a apăsa pe pahare în timp ce se amestecă
+            cupsArea.style.pointerEvents = 'none';
             
             // 1. Arătăm ce este sub pahare (o păcălim că există și NU)
             cup1.innerText = 'DA';
@@ -325,6 +328,8 @@
                         
                         setTimeout(() => {
                             titleText.innerText = "Alege un pahar repede!";
+                            // Reactivăm click-urile abia după ce s-au oprit și a apărut textul
+                            cupsArea.style.pointerEvents = 'auto'; 
                         }, 400);
                     }
                 }, shuffleSpeed);
