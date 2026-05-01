@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ro">
 <head>
@@ -123,7 +122,12 @@
             "Gata, te oblig! 💕"
         ];
 
-        btnNu.addEventListener('mouseover', function() {
+        // Funcția care face butonul să fugă (adaptată pentru telefon)
+        function moveButton(e) {
+            if (e && e.type === 'touchstart') {
+                e.preventDefault(); // Pe telefon, prevenim apăsarea reală ca să nu dea click accidental
+            }
+            
             noClickCount++;
             
             // Butonul "Da" devine din ce în ce mai mare ca să fie greu de ratat!
@@ -132,24 +136,32 @@
             
             if (noClickCount < noMessages.length) {
                 // Schimbăm textul butonului
-                this.innerText = noMessages[noClickCount - 1];
+                btnNu.innerText = noMessages[noClickCount - 1];
                 
-                // Fuge la o distanță random pe ecran
-                const x = Math.random() * (window.innerWidth - this.offsetWidth - 50);
-                const y = Math.random() * (window.innerHeight - this.offsetHeight - 50);
+                // Fuge la o distanță random pe ecran (sigură pentru marginile telefonului)
+                const maxX = window.innerWidth - btnNu.offsetWidth - 20;
+                const maxY = window.innerHeight - btnNu.offsetHeight - 20;
                 
-                this.style.position = 'fixed';
-                this.style.left = `${Math.max(20, x)}px`;
-                this.style.top = `${Math.max(20, y)}px`;
+                const x = Math.random() * maxX;
+                const y = Math.random() * maxY;
+                
+                btnNu.style.position = 'fixed';
+                btnNu.style.left = `${Math.max(10, x)}px`;
+                btnNu.style.top = `${Math.max(10, y)}px`;
             } else {
                 // A încercat de prea multe ori. Ascundem butonul de tot!
-                this.style.display = 'none';
+                btnNu.style.display = 'none';
                 btnDa.style.transform = 'scale(1.5)';
                 btnDa.classList.add('pulse-fast');
                 titleText.innerText = "Acum chiar nu mai ai de ales! 😂❤️";
                 createHearts(10, '😭'); // Facem să plouă cu fețe care plâng amuzante
             }
-        });
+        }
+
+        // Adăugăm evenimentele și pentru PC (mouseover) și pentru telefon (touchstart)
+        btnNu.addEventListener('mouseover', moveButton);
+        btnNu.addEventListener('touchstart', moveButton);
+        btnNu.addEventListener('click', moveButton);
 
         btnDa.addEventListener('click', function() {
             // Când apasă "Da" (După iertare)
