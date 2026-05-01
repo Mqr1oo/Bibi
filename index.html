@@ -124,12 +124,12 @@
                 </button>
             </div>
 
-            <!-- Paharele efective -->
+            <!-- Paharele efective - ACUM AMBELE SUNT ROZ -->
             <div id="cups-area" class="relative w-full h-32 hidden">
                 <div id="cup1" class="cup bg-pink-500 w-20 h-24 rounded-t-lg rounded-b-3xl absolute flex justify-center items-center text-white text-4xl font-black shadow-xl cursor-pointer cup-move" style="left: 20%;">
                     ?
                 </div>
-                <div id="cup2" class="cup bg-purple-500 w-20 h-24 rounded-t-lg rounded-b-3xl absolute flex justify-center items-center text-white text-4xl font-black shadow-xl cursor-pointer cup-move" style="left: 60%;">
+                <div id="cup2" class="cup bg-pink-500 w-20 h-24 rounded-t-lg rounded-b-3xl absolute flex justify-center items-center text-white text-4xl font-black shadow-xl cursor-pointer cup-move" style="left: 60%;">
                     ?
                 </div>
             </div>
@@ -244,7 +244,8 @@
             containerDiv.style.display = 'none';
             btnNu.style.display = 'none'; // Ascundem NU definitiv
             
-            document.getElementById('main-image').src = "https://media.tenor.com/TKW1q8YxU30AAAAi/peach-cat.gif";
+            // AM PUS O POZĂ CUTE (GIF CU URSULEȚI) CA SĂ FIE SIGUR CĂ SE ÎNCARCĂ ȘI NU E GOL
+            document.getElementById('main-image').src = "https://media.tenor.com/Q-o_wZItf_gAAAAi/milk-and-mocha.gif";
             titleText.innerText = "Yaaay! Am știut!";
             titleText.classList.replace('text-pink-500', 'text-red-500');
             
@@ -282,7 +283,7 @@
 
                 const maxShuffles = 15;
                 const shuffleSpeed = 350; // Viteza clară de schimbare
-                const fliesNum = 7; // Mai puține muște
+                const fliesNum = 7; // Numărul de muște
 
                 spawnDistractingFlies(fliesNum);
                 
@@ -315,6 +316,12 @@
                         // GARANTĂM că la final se întorc pe poziții strict despărțite
                         cup1.style.left = '20%';
                         cup2.style.left = '60%';
+                        
+                        // OPRIM ȘI ȘTERGEM MUȘTELE EXACT AICI CÂND SE TERMINĂ AMESTECAREA
+                        flyIntervals.forEach(clearInterval);
+                        flyIntervals = [];
+                        const fliesContainer = document.getElementById('flies-container');
+                        if (fliesContainer) fliesContainer.innerHTML = '';
                         
                         setTimeout(() => {
                             titleText.innerText = "Alege un pahar repede!";
