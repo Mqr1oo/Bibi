@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Îmi pare rău! 🥺</title>
+    <title>Îmi pare rău!</title>
     <!-- Folosim Tailwind CSS pentru un design rapid și curat -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font drăguț de la Google Fonts -->
@@ -44,6 +44,7 @@
         #btn-nu {
             transition: all 0.2s ease;
             position: relative;
+            z-index: 100;
         }
 
         /* Animație Pahare (Alba-Neagra) */
@@ -54,26 +55,29 @@
         /* Stil pentru muștele care o distrag */
         .distracting-fly {
             position: fixed;
-            font-size: 2.5rem;
             z-index: 60;
             pointer-events: none;
             transition: all 0.2s linear;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(120vh); }
         }
     </style>
 </head>
 <body class="flex items-center justify-center relative">
 
-    <!-- Canvas pentru artificii finale -->
-    <canvas id="fireworks-canvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
+    <!-- Canvas pentru artificii finale (Z-40 ca să fie SUB card, dar PESTE fundal) -->
+    <canvas id="fireworks-canvas" class="fixed inset-0 pointer-events-none z-40 hidden"></canvas>
 
-    <!-- Fundal cu inimoare -->
-    <div id="hearts-container" class="absolute inset-0 pointer-events-none z-0"></div>
+    <!-- Fundal cu particule plutitoare -->
+    <div id="particles-container" class="absolute inset-0 pointer-events-none z-0"></div>
 
     <!-- Container pentru Muște -->
     <div id="flies-container"></div>
 
-    <!-- Cardul Principal -->
-    <div id="card" class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl z-10 max-w-lg w-full mx-4 text-center floating-card border-4 border-pink-200 transition-all duration-500">
+    <!-- Cardul Principal (Z-50 ca să fie deasupra artificiilor) -->
+    <div id="card" class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl z-50 relative max-w-lg w-full mx-4 text-center floating-card border-4 border-pink-200 transition-all duration-500">
         
         <!-- Imaginea voastră rotundă din folderul docs -->
         <img id="main-image" src="docs/us1.jpg" alt="Noi doi" class="w-32 h-32 md:w-40 md:h-40 object-cover mx-auto rounded-full mb-6 border-4 border-pink-100 shadow-md">
@@ -112,18 +116,16 @@
 
         <!-- Mini Jocul Alba-Neagra -->
         <div id="minigame-container" class="hidden flex-col items-center justify-center gap-6 mt-4 w-full">
-            <h2 class="text-xl md:text-2xl font-black text-purple-600 uppercase">Ce pică aia primesc! 🤫</h2>
+            <h2 class="text-xl md:text-2xl font-black text-purple-600 uppercase">Ce pică aia primesc!</h2>
             
             <div id="mg-menu" class="w-full flex flex-col gap-3">
                 <label class="text-gray-500 font-bold text-sm">Nivel dificultate:</label>
-                <select class="border-2 border-purple-300 rounded-xl p-2 font-bold text-gray-700 text-center outline-none">
-                    <option>Ușor</option>
-                    <option>Mediu</option>
-                    <option>Greu</option>
-                    <option selected>Imposibil</option>
+                <select id="diff-select" class="border-2 border-purple-300 rounded-xl p-2 font-bold text-gray-700 text-center outline-none">
+                    <option value="usor">Ușor</option>
+                    <option value="mediu" selected>Mediu</option>
                 </select>
                 <button id="start-shuffle-btn" class="bg-purple-500 text-white font-bold py-3 px-6 rounded-full shadow mt-2 hover:bg-purple-600 active:scale-95 transition-transform">
-                    Amestecă Paharele! 🎲
+                    Amestecă Paharele!
                 </button>
             </div>
 
@@ -153,24 +155,24 @@
         let isHidingButton = false;
         
         const noMessages = [
-            "Chiar așa?? Hai te rog eu mult, sunt cuminte, am greșit și eu puțin. 🥺",
-            "Iar?... Așa suflet rău sunt? Hai te rog mai dă-mi o șansă.. uite îți fac masaj 1 oră când vii la mine, full. 💆‍♀️",
-            "Bănuiesc că nu ți-a plăcut oferta... dar hai, știi că sunt bun. 🧸",
-            "A 4-a oară?.. Of, dar greu de cap mai sunt. 🤦‍♂️",
-            "Te rog doamna Bucur, te rog, te implor, fac ce vrei! 🙏",
+            "Chiar așa?? Hai te rog eu mult, sunt cuminte, am greșit și eu puțin.",
+            "Iar?... Așa suflet rău sunt? Hai te rog mai dă-mi o șansă.. uite îți fac masaj 1 oră când vii la mine, full.",
+            "Bănuiesc că nu ți-a plăcut oferta... dar hai, știi că sunt bun.",
+            "A 4-a oară?.. Of, dar greu de cap mai sunt.",
+            "Te rog doamna Bucur, te rog, te implor, fac ce vrei!",
             "", // La 6 va fi ascuns, acest text e ignorat vizual
-            "Huh, credeam că mi-a ieșit... 😅",
-            "OFF! Da, chiar insiști... poate și eu. 😤",
-            "Bine mă, bine... 🫣"
+            "Huh, credeam că mi-a ieșit...",
+            "OFF! Da, chiar insiști... poate și eu.",
+            "Bine mă, bine..."
         ];
 
         function moveButton(e) {
-            // Permitem rularea doar la click / touchstart. Eliminăm hover-ul fals de pe telefon
+            // Permitem rularea doar la click / touchstart pe telefon
             if (e && e.type === 'touchstart') e.preventDefault();
             if (isHidingButton) return;
 
             noClickCount++;
-            btnDa.style.transform = `scale(${1 + (noClickCount * 0.1)})`; // DA se face mai mare
+            btnDa.style.transform = `scale(${1 + (noClickCount * 0.15)})`; // DA se face mult mai mare vizibil
             
             if (noClickCount === 6) {
                 // Pasul 6: Ascundem butonul complet pentru scurt timp
@@ -197,35 +199,38 @@
             } else if (noClickCount >= 10) {
                 // Pasul 10: Trecem la jocul cu pahare
                 containerDiv.style.display = 'none';
+                btnNu.style.display = 'none'; // Ne asigurăm că dispare de pe ecran
                 msgContainer.style.display = 'none';
-                titleText.innerText = "Să vedem cât de norocoasă ești! 😂";
+                titleText.innerText = "Să vedem cât de norocoasă ești!";
                 minigameContainer.classList.remove('hidden');
                 minigameContainer.classList.add('flex');
             }
         }
 
         function jumpButtonRandomly() {
-            // Obținem dimensiunile exacte ale butonului și ferestrei
-            const btnWidth = btnNu.offsetWidth;
-            const btnHeight = btnNu.offsetHeight;
-            const maxW = window.innerWidth;
-            const maxH = window.innerHeight;
+            // TRUC IMPORTANT: Scoatem butonul din card și îl punem direct în body 
+            // Astfel, se va raporta strict la marginile telefonului, nu la cardul care se mișcă!
+            if (btnNu.parentNode !== document.body) {
+                document.body.appendChild(btnNu);
+            }
 
-            // Calculăm limitele sigure ca să NU iasă din ecran și să NU creeze scroll
-            const safeXMin = 10;
-            const safeYMin = 10;
-            const safeXMax = maxW - btnWidth - 10;
-            const safeYMax = maxH - btnHeight - 10;
+            // Obținem dimensiunile exacte ale butonului
+            const btnWidth = btnNu.offsetWidth || 100;
+            const btnHeight = btnNu.offsetHeight || 50;
+            
+            // Calculăm limitele ultra-sigure ca să nu iasă NICIODATĂ din ecran
+            const safeXMin = 20;
+            const safeYMin = 20;
+            const maxX = window.innerWidth - btnWidth - 20;
+            const maxY = window.innerHeight - btnHeight - 20;
             
             // Generăm coordonate random în limitele stabilite
-            const randomX = safeXMin + Math.random() * (safeXMax - safeXMin);
-            const randomY = safeYMin + Math.random() * (safeYMax - safeYMin);
+            const randomX = safeXMin + Math.random() * (maxX - safeXMin);
+            const randomY = safeYMin + Math.random() * (maxY - safeYMin);
             
             btnNu.style.position = 'fixed';
             btnNu.style.left = `${randomX}px`;
             btnNu.style.top = `${randomY}px`;
-            // Nu mai lăsăm z-index-ul să intre sub card
-            btnNu.style.zIndex = "100";
         }
 
         // Evenimentele doar pentru CLiCK (sau Tap pe telefon)
@@ -234,20 +239,28 @@
 
         // -- LOGICĂ SUCCES ("Da" sau Pahar ales) --
         function triggerSuccess() {
+            // Curățăm muștele imediat și definitiv
+            flyIntervals.forEach(clearInterval);
+            flyIntervals = [];
+            const fliesContainer = document.getElementById('flies-container');
+            if (fliesContainer) fliesContainer.innerHTML = '';
+
             minigameContainer.style.display = 'none';
             containerDiv.style.display = 'none';
+            btnNu.style.display = 'none'; // Ascundem NU definitiv
             
             document.getElementById('main-image').src = "https://media.tenor.com/TKW1q8YxU30AAAAi/peach-cat.gif";
-            titleText.innerText = "Yaaay! Am știut! ❤️🧸";
+            titleText.innerText = "Yaaay! Am știut!";
             titleText.classList.replace('text-pink-500', 'text-red-500');
             
+            // Afișăm textul EXACT cum ai cerut, în centrul cardului
             msgContainer.style.display = 'flex';
-            msgContainer.innerHTML = "<p class='text-2xl text-gray-800 font-bold mt-4 text-center'>Te iubesc cel mai mult din lumea asta! Ești o femeie specială și nu aș putea să exprim asta în cuvinte. ❤️</p>";
+            msgContainer.innerHTML = "<p class='text-xl md:text-2xl text-gray-800 font-bold mt-4 text-center'>Te iubesc cel mai mult din lumea asta! Ești o femeie specială și nu aș putea să exprim asta în cuvinte.</p>";
 
-            // Artificii!
+            // Artificii pornite!
             document.getElementById('fireworks-canvas').classList.remove('hidden');
             startFireworks();
-            createHearts(30, '❤️');
+            createParticles(30);
         }
 
         btnDa.addEventListener('click', triggerSuccess);
@@ -263,25 +276,42 @@
             mgMenu.style.display = 'none';
             cupsArea.classList.remove('hidden');
             
-            spawnDistractingFlies(8); // Zboară 8 muște super enervante
-            
-            // Amestecăm de 10 ori rapid
-            let shuffles = 0;
-            let shuffleInterval = setInterval(() => {
-                shuffles++;
-                // Schimbăm pozițiile paharelor
-                let pos1 = Math.random() * 60 + 10; // între 10% și 70%
-                let pos2 = Math.random() * 60 + 10;
-                cup1.style.left = `${pos1}%`;
-                cup2.style.left = `${pos2}%`;
+            // 1. Arătăm ce este sub pahare (opțiunile)
+            cup1.innerText = 'DA';
+            cup2.innerText = 'DA';
 
-                if (shuffles > 15) {
-                    clearInterval(shuffleInterval);
-                    setTimeout(() => {
-                        titleText.innerText = "Alege un pahar repede!";
-                    }, 500);
-                }
-            }, 300);
+            // 2. Așteptăm 1.5 secunde ca să vadă, apoi ascundem și amestecăm
+            setTimeout(() => {
+                cup1.innerText = '?';
+                cup2.innerText = '?';
+
+                // Preluăm dificultatea
+                const diffSelect = document.getElementById('diff-select');
+                const isUsor = diffSelect.value === 'usor';
+                const maxShuffles = isUsor ? 10 : 20;
+                const shuffleSpeed = isUsor ? 400 : 200; // Viteza schimbării
+                const fliesNum = isUsor ? 5 : 12; // Câte muște apar
+
+                spawnDistractingFlies(fliesNum);
+                
+                // Amestecăm paharele
+                let shuffles = 0;
+                let shuffleInterval = setInterval(() => {
+                    shuffles++;
+                    // Schimbăm pozițiile paharelor (random între 10% și 70% stânga/dreapta)
+                    let pos1 = Math.random() * 60 + 10; 
+                    let pos2 = Math.random() * 60 + 10;
+                    cup1.style.left = `${pos1}%`;
+                    cup2.style.left = `${pos2}%`;
+
+                    if (shuffles >= maxShuffles) {
+                        clearInterval(shuffleInterval);
+                        setTimeout(() => {
+                            titleText.innerText = "Alege un pahar repede!";
+                        }, 500);
+                    }
+                }, shuffleSpeed);
+            }, 1500);
         });
 
         cup1.addEventListener('click', triggerSuccess);
@@ -292,32 +322,30 @@
         function spawnDistractingFlies(count) {
             const container = document.getElementById('flies-container');
             for(let i=0; i<count; i++) {
-                let fly = document.createElement('div');
-                fly.innerHTML = '🪰';
+                let fly = document.createElement('img'); // Acum e o poză (img), nu un punct desenat
+                fly.src = 'docs/musca.png';
                 fly.className = 'distracting-fly';
+                
+                // Mărime pentru poză
+                let size = Math.random() * 20 + 30; 
+                fly.style.width = size + 'px';
+                fly.style.height = 'auto';
                 
                 // Poziție inițială
                 fly.style.left = Math.random() * 100 + 'vw';
                 fly.style.top = Math.random() * 100 + 'vh';
                 container.appendChild(fly);
 
-                // Mișcare disperată la fiecare 150ms
+                // Mișcare disperată pe ecran
                 let flyTimer = setInterval(() => {
                     fly.style.left = (Math.random() * 90) + 'vw';
                     fly.style.top = (Math.random() * 90) + 'vh';
-                    fly.style.transform = `rotate(${Math.random() * 360}deg) scale(${1 + Math.random()})`;
+                    // Le rotim pentru a fi mai haotice
+                    fly.style.transform = `rotate(${Math.random() * 360}deg)`;
                 }, 200 + Math.random() * 200);
                 
                 flyIntervals.push(flyTimer);
             }
-        }
-
-        // Curățăm muștele la succes
-        const originalTriggerSuccess = triggerSuccess;
-        triggerSuccess = function() {
-            flyIntervals.forEach(clearInterval);
-            document.getElementById('flies-container').innerHTML = '';
-            originalTriggerSuccess();
         }
 
         // --- SISTEM DE ARTIFICII ---
@@ -372,7 +400,8 @@
             let activeFireworks = [];
 
             function loop() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                // Folosim culoarea fundalului cu transparență pentru un efect frumos fără să facem ecranul negru
+                ctx.fillStyle = 'rgba(252, 231, 243, 0.3)'; 
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
                 // Mai dăm cu artificii din când în când
@@ -394,23 +423,26 @@
             loop();
         }
 
-        // Inimi plutitoare fundal
-        function createHearts(count = 15, customEmoji = null) {
-            const container = document.getElementById('hearts-container');
-            const emojis = ['❤️', '💖', '💕', '🌸'];
+        // Bule/particule simple plutitoare pe fundal
+        function createParticles(count = 15) {
+            const container = document.getElementById('particles-container');
             for(let i=0; i<count; i++) {
                 setTimeout(() => {
-                    const heart = document.createElement('div');
-                    heart.innerHTML = customEmoji ? customEmoji : emojis[Math.floor(Math.random() * emojis.length)];
-                    heart.className = 'absolute top-[-50px] transition-transform';
-                    heart.style.left = Math.random() * 100 + 'vw';
-                    heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
-                    heart.style.animation = `fall ${Math.random() * 3 + 4}s linear infinite`;
-                    container.appendChild(heart);
-                }, i * 200);
+                    const particle = document.createElement('div');
+                    particle.className = 'absolute top-[-50px] rounded-full opacity-40';
+                    particle.style.backgroundColor = ['#ff9a9e', '#fecaca', '#fbcfe8'][Math.floor(Math.random() * 3)];
+                    
+                    let size = Math.random() * 20 + 10;
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    
+                    particle.style.left = Math.random() * 100 + 'vw';
+                    particle.style.animation = `fall ${Math.random() * 4 + 5}s linear infinite`;
+                    container.appendChild(particle);
+                }, i * 300);
             }
         }
-        createHearts(15);
+        createParticles(15);
     </script>
 </body>
 </html>
