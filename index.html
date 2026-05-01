@@ -2,36 +2,24 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Îmi pare rău! 🥺</title>
     <!-- Folosim Tailwind CSS pentru un design rapid și curat -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font drăguț de la Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body {
+        body, html {
             font-family: 'Nunito', sans-serif;
             background-color: #fce7f3; /* Roz pastelat */
-            overflow: hidden; /* Să nu apară scroll când fuge butonul */
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; /* FĂRĂ SLIDERE/SCROLL */
+            touch-action: none; /* Previne scroll-ul pe telefon (pull-to-refresh) */
         }
         
-        /* Animație pentru inimoare plutitoare */
-        .heart {
-            position: absolute;
-            top: -20vh;
-            transform: translateY(0);
-            animation: fall 10s linear infinite;
-            color: #ff9a9e;
-            font-size: 24px;
-            z-index: 0;
-        }
-
-        @keyframes fall {
-            to {
-                transform: translateY(120vh);
-            }
-        }
-
         /* Efect de plutire pentru card */
         .floating-card {
             animation: float 3s ease-in-out infinite;
@@ -43,7 +31,6 @@
             100% { transform: translateY(0px); }
         }
 
-        /* Animații noi pentru joculeț */
         .pulse-fast {
             animation: pulse 1s infinite;
         }
@@ -56,154 +43,373 @@
 
         #btn-nu {
             transition: all 0.2s ease;
-            position: relative; /* Adăugat pentru a începe jocul corect */
+            position: relative;
+        }
+
+        /* Animație Pahare (Alba-Neagra) */
+        .cup-move {
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Stil pentru muștele care o distrag */
+        .distracting-fly {
+            position: fixed;
+            font-size: 2.5rem;
+            z-index: 60;
+            pointer-events: none;
+            transition: all 0.2s linear;
         }
     </style>
 </head>
-<body class="h-screen w-screen flex items-center justify-center relative">
+<body class="flex items-center justify-center relative">
 
-    <!-- Fundal cu inimoare generate prin JavaScript -->
+    <!-- Canvas pentru artificii finale -->
+    <canvas id="fireworks-canvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
+
+    <!-- Fundal cu inimoare -->
     <div id="hearts-container" class="absolute inset-0 pointer-events-none z-0"></div>
 
+    <!-- Container pentru Muște -->
+    <div id="flies-container"></div>
+
     <!-- Cardul Principal -->
-    <div id="card" class="bg-white p-8 rounded-3xl shadow-2xl z-10 max-w-md w-full mx-4 text-center floating-card border-4 border-pink-200 transition-all duration-500">
+    <div id="card" class="bg-white p-6 md:p-8 rounded-3xl shadow-2xl z-10 max-w-lg w-full mx-4 text-center floating-card border-4 border-pink-200 transition-all duration-500">
         
         <!-- Imaginea voastră rotundă din folderul docs -->
-        <img id="main-image" src="docs/us1.jpg" alt="Noi doi" class="w-48 h-48 object-cover mx-auto rounded-full mb-6 border-4 border-pink-100 shadow-md">
+        <img id="main-image" src="docs/us1.jpg" alt="Noi doi" class="w-32 h-32 md:w-40 md:h-40 object-cover mx-auto rounded-full mb-6 border-4 border-pink-100 shadow-md">
         
-        <h1 id="title" class="text-3xl font-bold text-pink-500 mb-4 transition-colors duration-300">Îmi pare super rău! 🥺</h1>
+        <h1 id="title" class="text-2xl md:text-3xl font-bold text-pink-500 mb-4 transition-colors duration-300">Imi pare rau iubita..</h1>
         
-        <!-- ========================================== -->
-        <!-- ===== AICI PUI MESAJUL TĂU PERSONAL! ===== -->
-        <!-- ========================================== -->
-        
-        <div id="message-container" class="text-gray-600 text-lg mb-8 leading-relaxed font-medium transition-all duration-300">
-            <p>
-                Iubita mea, te rog din suflet să mă ierți. <br>
-                Știu că am greșit și îmi pare nespus de rău. Nu am vrut să te supăr absolut deloc.
-            </p>
-            <br>
-            <p class="text-pink-400 font-bold">
-                Lasă-mă să te împac cu o îmbrățișare mare! Mă ierți?
-            </p>
-            <!-- (Poți șterge textul de mai sus și să pui orice simți tu) -->
+        <div id="message-container" class="text-gray-700 text-sm md:text-base mb-6 leading-relaxed font-medium transition-all duration-300 min-h-[150px] flex items-center justify-center flex-col">
+            <div>
+                <p>
+                    Îmi pare rău, iubire, că în ultimele 24 de ore te-am făcut să te simți nașpa. Nu am un motiv anume, decât acela că am fost prost. Te iubesc și chiar vreau să stăm în seara asta mult, mult să vorbim.
+                </p>
+                <br>
+                <p>
+                    Îmi e dor de tine, coaie, rău și da, am avut momente în care m-am comportat ca un kkt și nu, nu voiam să o fac cu tine. Tu ești o fată specială, frumoasă și superbă. Câteodată exagerez cu unele lucruri și da, știu că mă ții sub control, dar mai sar gardul. 
+                </p>
+                <br>
+                <p>
+                    Îmi pare rău că astăzi ai avut o zi grea și lungă, dar sunt aici și poți vorbi cu mine, prințesă.
+                </p>
+                <br>
+                <p class="text-pink-500 font-bold text-lg md:text-xl">
+                    Ce zici, îmi mai acorzi o șansă? Te rog.
+                </p>
+            </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- ========================================== -->
-
-        <!-- Butoanele (Aici se întâmplă magia jocului) -->
-        <div id="buttons-container" class="relative flex justify-center gap-4 min-h-[50px] items-center flex-wrap">
-            <button id="btn-da" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-110 z-20">
-                Da, te iert! ❤️
+        <!-- Butoanele Normale -->
+        <div id="buttons-container" class="relative flex justify-center gap-4 min-h-[50px] items-center">
+            <button id="btn-da" class="bg-pink-500 hover:bg-pink-600 text-white font-black py-3 px-10 rounded-full shadow-lg transform transition-all duration-300 hover:scale-110 z-20 text-lg">
+                DA
             </button>
-            <button id="btn-nu" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-3 px-8 rounded-full shadow z-10">
-                Nu încă! 😤
+            <button id="btn-nu" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-black py-3 px-10 rounded-full shadow z-10 text-lg">
+                NU
             </button>
         </div>
+
+        <!-- Mini Jocul Alba-Neagra -->
+        <div id="minigame-container" class="hidden flex-col items-center justify-center gap-6 mt-4 w-full">
+            <h2 class="text-xl md:text-2xl font-black text-purple-600 uppercase">Ce pică aia primesc! 🤫</h2>
+            
+            <div id="mg-menu" class="w-full flex flex-col gap-3">
+                <label class="text-gray-500 font-bold text-sm">Nivel dificultate:</label>
+                <select class="border-2 border-purple-300 rounded-xl p-2 font-bold text-gray-700 text-center outline-none">
+                    <option>Ușor</option>
+                    <option>Mediu</option>
+                    <option>Greu</option>
+                    <option selected>Imposibil</option>
+                </select>
+                <button id="start-shuffle-btn" class="bg-purple-500 text-white font-bold py-3 px-6 rounded-full shadow mt-2 hover:bg-purple-600 active:scale-95 transition-transform">
+                    Amestecă Paharele! 🎲
+                </button>
+            </div>
+
+            <!-- Paharele efective -->
+            <div id="cups-area" class="relative w-full h-32 hidden">
+                <div id="cup1" class="cup bg-gradient-to-br from-pink-400 to-purple-500 w-20 h-24 rounded-t-lg rounded-b-3xl absolute flex justify-center items-center text-white text-4xl font-black shadow-xl cursor-pointer cup-move" style="left: 20%;">
+                    ?
+                </div>
+                <div id="cup2" class="cup bg-gradient-to-br from-purple-400 to-pink-500 w-20 h-24 rounded-t-lg rounded-b-3xl absolute flex justify-center items-center text-white text-4xl font-black shadow-xl cursor-pointer cup-move" style="left: 60%;">
+                    ?
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Script pentru logica butoanelor și inimoare -->
     <script>
+        // DOM Elements
         const btnNu = document.getElementById('btn-nu');
         const btnDa = document.getElementById('btn-da');
         const containerDiv = document.getElementById('buttons-container');
         const titleText = document.getElementById('title');
+        const msgContainer = document.getElementById('message-container');
+        const minigameContainer = document.getElementById('minigame-container');
         
         let noClickCount = 0;
+        let isHidingButton = false;
         
-        // Mesajele care se schimbă când încearcă să apese pe "Nu"
         const noMessages = [
-            "Ești sigură? 🥺", 
-            "Chiar deloc? 😭", 
-            "Mai gândește-te! 💔", 
-            "Haide iubiii... 🧸", 
-            "Ultima șansă! 😤",
-            "Gata, te oblig! 💕"
+            "Chiar așa?? Hai te rog eu mult, sunt cuminte, am greșit și eu puțin. 🥺",
+            "Iar?... Așa suflet rău sunt? Hai te rog mai dă-mi o șansă.. uite îți fac masaj 1 oră când vii la mine, full. 💆‍♀️",
+            "Bănuiesc că nu ți-a plăcut oferta... dar hai, știi că sunt bun. 🧸",
+            "A 4-a oară?.. Of, dar greu de cap mai sunt. 🤦‍♂️",
+            "Te rog doamna Bucur, te rog, te implor, fac ce vrei! 🙏",
+            "", // La 6 va fi ascuns, acest text e ignorat vizual
+            "Huh, credeam că mi-a ieșit... 😅",
+            "OFF! Da, chiar insiști... poate și eu. 😤",
+            "Bine mă, bine... 🫣"
         ];
 
-        // Funcția care face butonul să fugă (adaptată pentru telefon)
         function moveButton(e) {
-            if (e && e.type === 'touchstart') {
-                e.preventDefault(); // Pe telefon, prevenim apăsarea reală ca să nu dea click accidental
-            }
-            
+            // Permitem rularea doar la click / touchstart. Eliminăm hover-ul fals de pe telefon
+            if (e && e.type === 'touchstart') e.preventDefault();
+            if (isHidingButton) return;
+
             noClickCount++;
+            btnDa.style.transform = `scale(${1 + (noClickCount * 0.1)})`; // DA se face mai mare
             
-            // Butonul "Da" devine din ce în ce mai mare ca să fie greu de ratat!
-            let currentScale = 1 + (noClickCount * 0.15);
-            btnDa.style.transform = `scale(${currentScale})`;
-            
-            if (noClickCount < noMessages.length) {
-                // Schimbăm textul butonului
-                btnNu.innerText = noMessages[noClickCount - 1];
-                
-                // Fuge la o distanță random pe ecran (sigură pentru marginile telefonului)
-                const maxX = window.innerWidth - btnNu.offsetWidth - 20;
-                const maxY = window.innerHeight - btnNu.offsetHeight - 20;
-                
-                const x = Math.random() * maxX;
-                const y = Math.random() * maxY;
-                
-                btnNu.style.position = 'fixed';
-                btnNu.style.left = `${Math.max(10, x)}px`;
-                btnNu.style.top = `${Math.max(10, y)}px`;
-            } else {
-                // A încercat de prea multe ori. Ascundem butonul de tot!
+            if (noClickCount === 6) {
+                // Pasul 6: Ascundem butonul complet pentru scurt timp
+                isHidingButton = true;
                 btnNu.style.display = 'none';
-                btnDa.style.transform = 'scale(1.5)';
-                btnDa.classList.add('pulse-fast');
-                titleText.innerText = "Acum chiar nu mai ai de ales! 😂❤️";
-                createHearts(10, '😭'); // Facem să plouă cu fețe care plâng amuzante
+                msgContainer.innerHTML = `<p class="text-xl md:text-2xl text-pink-600 font-bold transition-all duration-300 text-center animate-pulse">...</p>`;
+                
+                setTimeout(() => {
+                    btnNu.style.display = 'block';
+                    msgContainer.innerHTML = `<p class="text-xl md:text-2xl text-pink-600 font-bold transition-all duration-300 text-center">${noMessages[6]}</p>`;
+                    jumpButtonRandomly();
+                    isHidingButton = false;
+                    noClickCount = 7; // Am sărit practic la pasul 7
+                }, 3000);
+                return;
+            }
+
+            if (noClickCount <= 9) {
+                if(noClickCount !== 7) { 
+                    // Schimbăm textul principal, lăsăm butonul simplu "NU"
+                    msgContainer.innerHTML = `<p class="text-xl md:text-2xl text-pink-600 font-bold transition-all duration-300 text-center">${noMessages[noClickCount - 1]}</p>`;
+                }
+                jumpButtonRandomly();
+            } else if (noClickCount >= 10) {
+                // Pasul 10: Trecem la jocul cu pahare
+                containerDiv.style.display = 'none';
+                msgContainer.style.display = 'none';
+                titleText.innerText = "Să vedem cât de norocoasă ești! 😂";
+                minigameContainer.classList.remove('hidden');
+                minigameContainer.classList.add('flex');
             }
         }
 
-        // Adăugăm evenimentele și pentru PC (mouseover) și pentru telefon (touchstart)
-        btnNu.addEventListener('mouseover', moveButton);
-        btnNu.addEventListener('touchstart', moveButton);
+        function jumpButtonRandomly() {
+            // Obținem dimensiunile exacte ale butonului și ferestrei
+            const btnWidth = btnNu.offsetWidth;
+            const btnHeight = btnNu.offsetHeight;
+            const maxW = window.innerWidth;
+            const maxH = window.innerHeight;
+
+            // Calculăm limitele sigure ca să NU iasă din ecran și să NU creeze scroll
+            const safeXMin = 10;
+            const safeYMin = 10;
+            const safeXMax = maxW - btnWidth - 10;
+            const safeYMax = maxH - btnHeight - 10;
+            
+            // Generăm coordonate random în limitele stabilite
+            const randomX = safeXMin + Math.random() * (safeXMax - safeXMin);
+            const randomY = safeYMin + Math.random() * (safeYMax - safeYMin);
+            
+            btnNu.style.position = 'fixed';
+            btnNu.style.left = `${randomX}px`;
+            btnNu.style.top = `${randomY}px`;
+            // Nu mai lăsăm z-index-ul să intre sub card
+            btnNu.style.zIndex = "100";
+        }
+
+        // Evenimentele doar pentru CLiCK (sau Tap pe telefon)
+        btnNu.addEventListener('touchstart', moveButton, {passive: false});
         btnNu.addEventListener('click', moveButton);
 
-        btnDa.addEventListener('click', function() {
-            // Când apasă "Da" (După iertare)
-            document.getElementById('main-image').src = "https://media.tenor.com/TKW1q8YxU30AAAAi/peach-cat.gif"; // Gif drăguț la final
-            document.getElementById('title').innerText = "Yaaay! Te iubesc enorm! ❤️🧸";
-            document.getElementById('title').classList.replace('text-pink-500', 'text-red-500');
-            document.getElementById('message-container').innerHTML = "<p class='text-xl text-gray-700 font-bold'>Promit să fiu cel mai bun băiat! Mulțumesc că m-ai iertat! ✨</p>";
-            
-            // Curățăm ecranul de butoane
-            btnDa.style.transform = 'scale(1)';
-            btnDa.classList.remove('pulse-fast');
+        // -- LOGICĂ SUCCES ("Da" sau Pahar ales) --
+        function triggerSuccess() {
+            minigameContainer.style.display = 'none';
             containerDiv.style.display = 'none';
-            btnNu.style.display = 'none';
+            
+            document.getElementById('main-image').src = "https://media.tenor.com/TKW1q8YxU30AAAAi/peach-cat.gif";
+            titleText.innerText = "Yaaay! Am știut! ❤️🧸";
+            titleText.classList.replace('text-pink-500', 'text-red-500');
+            
+            msgContainer.style.display = 'flex';
+            msgContainer.innerHTML = "<p class='text-2xl text-gray-800 font-bold mt-4 text-center'>Te iubesc cel mai mult din lumea asta! Ești o femeie specială și nu aș putea să exprim asta în cuvinte. ❤️</p>";
 
-            // Ploaie de inimioare și sclipiri!
-            createHearts(40, '❤️');
-            createHearts(20, '✨');
+            // Artificii!
+            document.getElementById('fireworks-canvas').classList.remove('hidden');
+            startFireworks();
+            createHearts(30, '❤️');
+        }
+
+        btnDa.addEventListener('click', triggerSuccess);
+
+        // -- LOGICĂ MINIGAME --
+        const startShuffleBtn = document.getElementById('start-shuffle-btn');
+        const cupsArea = document.getElementById('cups-area');
+        const mgMenu = document.getElementById('mg-menu');
+        const cup1 = document.getElementById('cup1');
+        const cup2 = document.getElementById('cup2');
+
+        startShuffleBtn.addEventListener('click', () => {
+            mgMenu.style.display = 'none';
+            cupsArea.classList.remove('hidden');
+            
+            spawnDistractingFlies(8); // Zboară 8 muște super enervante
+            
+            // Amestecăm de 10 ori rapid
+            let shuffles = 0;
+            let shuffleInterval = setInterval(() => {
+                shuffles++;
+                // Schimbăm pozițiile paharelor
+                let pos1 = Math.random() * 60 + 10; // între 10% și 70%
+                let pos2 = Math.random() * 60 + 10;
+                cup1.style.left = `${pos1}%`;
+                cup2.style.left = `${pos2}%`;
+
+                if (shuffles > 15) {
+                    clearInterval(shuffleInterval);
+                    setTimeout(() => {
+                        titleText.innerText = "Alege un pahar repede!";
+                    }, 500);
+                }
+            }, 300);
         });
 
-        // Funcție flexibilă pentru a pune particule (inimi sau emoji-uri personalizate)
+        cup1.addEventListener('click', triggerSuccess);
+        cup2.addEventListener('click', triggerSuccess);
+
+        // Funcția pentru Muște
+        let flyIntervals = [];
+        function spawnDistractingFlies(count) {
+            const container = document.getElementById('flies-container');
+            for(let i=0; i<count; i++) {
+                let fly = document.createElement('div');
+                fly.innerHTML = '🪰';
+                fly.className = 'distracting-fly';
+                
+                // Poziție inițială
+                fly.style.left = Math.random() * 100 + 'vw';
+                fly.style.top = Math.random() * 100 + 'vh';
+                container.appendChild(fly);
+
+                // Mișcare disperată la fiecare 150ms
+                let flyTimer = setInterval(() => {
+                    fly.style.left = (Math.random() * 90) + 'vw';
+                    fly.style.top = (Math.random() * 90) + 'vh';
+                    fly.style.transform = `rotate(${Math.random() * 360}deg) scale(${1 + Math.random()})`;
+                }, 200 + Math.random() * 200);
+                
+                flyIntervals.push(flyTimer);
+            }
+        }
+
+        // Curățăm muștele la succes
+        const originalTriggerSuccess = triggerSuccess;
+        triggerSuccess = function() {
+            flyIntervals.forEach(clearInterval);
+            document.getElementById('flies-container').innerHTML = '';
+            originalTriggerSuccess();
+        }
+
+        // --- SISTEM DE ARTIFICII ---
+        function startFireworks() {
+            const canvas = document.getElementById('fireworks-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            let colors = ['#ff0044', '#ff00cc', '#00ffcc', '#ffff00', '#ff6600', '#9900ff'];
+
+            function Firework(x, y) {
+                this.x = x;
+                this.y = y;
+                this.particles = [];
+                for(let i=0; i<50; i++) {
+                    this.particles.push(new Particle(this.x, this.y));
+                }
+            }
+
+            function Particle(x, y) {
+                this.x = x;
+                this.y = y;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.radius = Math.random() * 3 + 1;
+                let angle = Math.random() * Math.PI * 2;
+                let speed = Math.random() * 5 + 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.gravity = 0.1;
+                this.alpha = 1;
+            }
+
+            Particle.prototype.update = function() {
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.alpha -= 0.015;
+            };
+
+            Particle.prototype.draw = function() {
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            };
+
+            let activeFireworks = [];
+
+            function loop() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Mai dăm cu artificii din când în când
+                if(Math.random() < 0.05) {
+                    activeFireworks.push(new Firework(Math.random() * canvas.width, Math.random() * canvas.height * 0.5));
+                }
+
+                activeFireworks.forEach((fw, i) => {
+                    fw.particles.forEach((p, j) => {
+                        p.update();
+                        p.draw();
+                        if(p.alpha <= 0) fw.particles.splice(j, 1);
+                    });
+                    if(fw.particles.length === 0) activeFireworks.splice(i, 1);
+                });
+
+                requestAnimationFrame(loop);
+            }
+            loop();
+        }
+
+        // Inimi plutitoare fundal
         function createHearts(count = 15, customEmoji = null) {
             const container = document.getElementById('hearts-container');
             const emojis = ['❤️', '💖', '💕', '🌸'];
-            
             for(let i=0; i<count; i++) {
                 setTimeout(() => {
                     const heart = document.createElement('div');
                     heart.innerHTML = customEmoji ? customEmoji : emojis[Math.floor(Math.random() * emojis.length)];
-                    heart.classList.add('heart');
+                    heart.className = 'absolute top-[-50px] transition-transform';
                     heart.style.left = Math.random() * 100 + 'vw';
-                    heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
                     heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                    heart.style.animation = `fall ${Math.random() * 3 + 4}s linear infinite`;
                     container.appendChild(heart);
-
-                    setTimeout(() => {
-                        heart.remove();
-                    }, 5000);
-                }, i * 150);
+                }, i * 200);
             }
         }
-
-        // Pornim fundalul cu inimioare inițiale
         createHearts(15);
     </script>
 </body>
