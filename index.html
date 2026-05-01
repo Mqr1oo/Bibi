@@ -1,1 +1,198 @@
 
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Îmi pare rău! 🥺</title>
+    <!-- Folosim Tailwind CSS pentru un design rapid și curat -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font drăguț de la Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #fce7f3; /* Roz pastelat */
+            overflow: hidden; /* Să nu apară scroll când fuge butonul */
+        }
+        
+        /* Animație pentru inimoare plutitoare */
+        .heart {
+            position: absolute;
+            top: -20vh;
+            transform: translateY(0);
+            animation: fall 10s linear infinite;
+            color: #ff9a9e;
+            font-size: 24px;
+            z-index: 0;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(120vh);
+            }
+        }
+
+        /* Efect de plutire pentru card */
+        .floating-card {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Animații noi pentru joculeț */
+        .pulse-fast {
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        #btn-nu {
+            transition: all 0.2s ease;
+            position: relative; /* Adăugat pentru a începe jocul corect */
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex items-center justify-center relative">
+
+    <!-- Fundal cu inimoare generate prin JavaScript -->
+    <div id="hearts-container" class="absolute inset-0 pointer-events-none z-0"></div>
+
+    <!-- Cardul Principal -->
+    <div id="card" class="bg-white p-8 rounded-3xl shadow-2xl z-10 max-w-md w-full mx-4 text-center floating-card border-4 border-pink-200 transition-all duration-500">
+        
+        <!-- Imaginea voastră rotundă din folderul docs -->
+        <img id="main-image" src="docs/us1.jpg" alt="Noi doi" class="w-48 h-48 object-cover mx-auto rounded-full mb-6 border-4 border-pink-100 shadow-md">
+        
+        <h1 id="title" class="text-3xl font-bold text-pink-500 mb-4 transition-colors duration-300">Îmi pare super rău! 🥺</h1>
+        
+        <!-- ========================================== -->
+        <!-- ===== AICI PUI MESAJUL TĂU PERSONAL! ===== -->
+        <!-- ========================================== -->
+        
+        <div id="message-container" class="text-gray-600 text-lg mb-8 leading-relaxed font-medium transition-all duration-300">
+            <p>
+                Iubita mea, te rog din suflet să mă ierți. <br>
+                Știu că am greșit și îmi pare nespus de rău. Nu am vrut să te supăr absolut deloc.
+            </p>
+            <br>
+            <p class="text-pink-400 font-bold">
+                Lasă-mă să te împac cu o îmbrățișare mare! Mă ierți?
+            </p>
+            <!-- (Poți șterge textul de mai sus și să pui orice simți tu) -->
+        </div>
+
+        <!-- ========================================== -->
+        <!-- ========================================== -->
+
+        <!-- Butoanele (Aici se întâmplă magia jocului) -->
+        <div id="buttons-container" class="relative flex justify-center gap-4 min-h-[50px] items-center flex-wrap">
+            <button id="btn-da" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-110 z-20">
+                Da, te iert! ❤️
+            </button>
+            <button id="btn-nu" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-3 px-8 rounded-full shadow z-10">
+                Nu încă! 😤
+            </button>
+        </div>
+    </div>
+
+    <!-- Script pentru logica butoanelor și inimoare -->
+    <script>
+        const btnNu = document.getElementById('btn-nu');
+        const btnDa = document.getElementById('btn-da');
+        const containerDiv = document.getElementById('buttons-container');
+        const titleText = document.getElementById('title');
+        
+        let noClickCount = 0;
+        
+        // Mesajele care se schimbă când încearcă să apese pe "Nu"
+        const noMessages = [
+            "Ești sigură? 🥺", 
+            "Chiar deloc? 😭", 
+            "Mai gândește-te! 💔", 
+            "Haide iubiii... 🧸", 
+            "Ultima șansă! 😤",
+            "Gata, te oblig! 💕"
+        ];
+
+        btnNu.addEventListener('mouseover', function() {
+            noClickCount++;
+            
+            // Butonul "Da" devine din ce în ce mai mare ca să fie greu de ratat!
+            let currentScale = 1 + (noClickCount * 0.15);
+            btnDa.style.transform = `scale(${currentScale})`;
+            
+            if (noClickCount < noMessages.length) {
+                // Schimbăm textul butonului
+                this.innerText = noMessages[noClickCount - 1];
+                
+                // Fuge la o distanță random pe ecran
+                const x = Math.random() * (window.innerWidth - this.offsetWidth - 50);
+                const y = Math.random() * (window.innerHeight - this.offsetHeight - 50);
+                
+                this.style.position = 'fixed';
+                this.style.left = `${Math.max(20, x)}px`;
+                this.style.top = `${Math.max(20, y)}px`;
+            } else {
+                // A încercat de prea multe ori. Ascundem butonul de tot!
+                this.style.display = 'none';
+                btnDa.style.transform = 'scale(1.5)';
+                btnDa.classList.add('pulse-fast');
+                titleText.innerText = "Acum chiar nu mai ai de ales! 😂❤️";
+                createHearts(10, '😭'); // Facem să plouă cu fețe care plâng amuzante
+            }
+        });
+
+        btnDa.addEventListener('click', function() {
+            // Când apasă "Da" (După iertare)
+            document.getElementById('main-image').src = "https://media.tenor.com/TKW1q8YxU30AAAAi/peach-cat.gif"; // Gif drăguț la final
+            document.getElementById('title').innerText = "Yaaay! Te iubesc enorm! ❤️🧸";
+            document.getElementById('title').classList.replace('text-pink-500', 'text-red-500');
+            document.getElementById('message-container').innerHTML = "<p class='text-xl text-gray-700 font-bold'>Promit să fiu cel mai bun băiat! Mulțumesc că m-ai iertat! ✨</p>";
+            
+            // Curățăm ecranul de butoane
+            btnDa.style.transform = 'scale(1)';
+            btnDa.classList.remove('pulse-fast');
+            containerDiv.style.display = 'none';
+            btnNu.style.display = 'none';
+
+            // Ploaie de inimioare și sclipiri!
+            createHearts(40, '❤️');
+            createHearts(20, '✨');
+        });
+
+        // Funcție flexibilă pentru a pune particule (inimi sau emoji-uri personalizate)
+        function createHearts(count = 15, customEmoji = null) {
+            const container = document.getElementById('hearts-container');
+            const emojis = ['❤️', '💖', '💕', '🌸'];
+            
+            for(let i=0; i<count; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.innerHTML = customEmoji ? customEmoji : emojis[Math.floor(Math.random() * emojis.length)];
+                    heart.classList.add('heart');
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                    container.appendChild(heart);
+
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 5000);
+                }, i * 150);
+            }
+        }
+
+        // Pornim fundalul cu inimioare inițiale
+        createHearts(15);
+    </script>
+</body>
+</html>
